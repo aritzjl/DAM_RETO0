@@ -1,8 +1,9 @@
 from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-
+from typing import List, Optional, Dict
 
 # Crear el motor de la base de datos SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -13,7 +14,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 # Crear la base declarativa
 Base = declarative_base()
-
 
 # Definir el modelo User actualizado
 class User(Base):
@@ -44,7 +44,25 @@ def get_db():
     finally:
         db.close()
 
-app = FastAPI()
+app = FastAPI(title="Plantas API", description="API para gestionar el estado de plantas y usuarios.", version="1.0")
+
+# Modelos de respuesta
+class PlantaResponse(BaseModel):
+    id: int
+    luces: bool
+    routers: bool
+    calefaccion: bool
+
+    class Config:
+        orm_mode = True
+
+class SwitchResponse(BaseModel):
+    message: str
+    planta: PlantaResponse
+
+class LoginResponse(BaseModel):
+    message: str
+    admin: bool
 
 # Función para inicializar usuarios predeterminados
 def init_db():
@@ -60,36 +78,39 @@ def init_db():
 
 init_db()  # Inicializar usuarios predeterminados
 
-@app.get("/planos", summary="Devuelve la lista de plantas, con el estado de sus respectivos dispositivos", tags=["planos"])
+@app.get("/planos", response_model=List[PlantaResponse], summary="Devuelve la lista de plantas", description="Obtiene la lista de todas las plantas con el estado actual de sus dispositivos (luces, routers, calefacción).", tags=["planos"])
 async def get_planos(db: Session = Depends(get_db)):
-    # Consulta para obtener todas las plantas
+    """
+    Obtiene la lista de todas las plantas en la base de datos junto con el estado actual de sus dispositivos (luces, routers, calefacción).
+    
+    - **db**: Sesión de base de datos.
+    
+    Returns:
+    - **List[PlantaResponse]**: Lista de objetos Planta con los estados de los dispositivos.
+    """
     plantas = db.query(Planta).all()
     return plantas
 
-"""@app.get("/plantas-init")
-async def plantas_init(db: Session = Depends(get_db)):
-    # Crear tres plantas con todos los atributos booleanos en False
-    planta1 = Planta(luces=False, routers=False, calefaccion=False)
-    planta2 = Planta(luces=False, routers=False, calefaccion=False)
-    planta3 = Planta(luces=False, routers=False, calefaccion=False)
-
-    # Añadir las plantas a la base de datos
-    db.add_all([planta1, planta2, planta3])
-    db.commit()
-
-    # Retornar un mensaje de éxito
-    return {"message": "Tres plantas creadas con todos los valores en False."}"""
-
-
-@app.put("/plantas/{planta_id}/switch", summary="Altera el estado de los dispositivos dada la planta y el tipo de dispositivo", tags=["planos"])
+@app.put("/plantas/{planta_id}/switch", response_model=SwitchResponse, summary="Cambia el estado de un dispositivo", description="Cambia el estado de un dispositivo específico (luces, routers, calefacción) en una planta dada.", tags=["planos"])
 async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(get_db)):
-    # Buscar la planta por ID
+    """
+    Cambia el estado de un dispositivo específico (luces, routers, calefacción) en una planta dada.
+    
+    - **planta_id**: ID de la planta en la base de datos.
+    - **attribute**: Nombre del atributo del dispositivo cuyo estado se desea cambiar ("luces", "routers", "calefaccion").
+    - **db**: Sesión de base de datos.
+    
+    Raises:
+    - **HTTPException**: Si la planta no se encuentra (404) o el atributo no es válido (400).
+    
+    Returns:
+    - **SwitchResponse**: Mensaje de éxito y el estado actualizado de la planta.
+    """
     planta = db.query(Planta).filter(Planta.id == planta_id).first()
     
     if not planta:
         raise HTTPException(status_code=404, detail="Planta no encontrada")
 
-    # Cambiar el estado del atributo específico
     if attribute == "luces":
         planta.luces = not planta.luces
     elif attribute == "routers":
@@ -99,15 +120,26 @@ async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(ge
     else:
         raise HTTPException(status_code=400, detail="Atributo no válido")
 
-    # Guardar cambios en la base de datos
     db.commit()
     db.refresh(planta)
 
     return {"message": f"Estado de {attribute} cambiado exitosamente.", "planta": planta}
 
-# Ruta de login para autenticación de usuario
-@app.post("/login", summary="Autenticación de usuario", tags=["ususarios"])
+@app.post("/login", response_model=LoginResponse, summary="Autenticación de usuario", description="Autentica a un usuario con el nombre de usuario y contraseña proporcionados.", tags=["usuarios"])
 async def login(username: str, password: str, db: Session = Depends(get_db)):
+    """
+    Autentica a un usuario con el nombre de usuario y contraseña proporcionados.
+    
+    - **username**: Nombre de usuario.
+    - **password**: Contraseña del usuario.
+    - **db**: Sesión de base de datos.
+    
+    Raises:
+    - **HTTPException**: Si las credenciales son inválidas (401).
+    
+    Returns:
+    - **LoginResponse**: Mensaje de éxito y un indicador de si el usuario es administrador.
+    """
     user = db.query(User).filter(User.username == username).first()
 
     if not user or not password == user.password:

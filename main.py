@@ -4,6 +4,7 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict
+import datetime
 
 # Crear el motor de la base de datos SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -32,6 +33,17 @@ class Planta(Base):
     luces = Column(Boolean, default=False)
     routers = Column(Boolean, default=False)
     calefaccion = Column(Boolean, default=False)
+    
+class Log(Base):
+    __tablename__ = "logs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String)
+    title = Column(String)
+    description = Column(String)
+    date = Column(String, default=datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    
+    
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
@@ -62,7 +74,9 @@ class SwitchResponse(BaseModel):
 
 class LoginResponse(BaseModel):
     message: str
+    username: str
     admin: bool
+    
 
 # Función para inicializar usuarios predeterminados
 def init_db():
@@ -109,6 +123,7 @@ async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(ge
     planta = db.query(Planta).filter(Planta.id == planta_id).first()
     
     if not planta:
+        save_log(db, "admin", "Cambio de estado fallido", "Planta no encontrada")
         raise HTTPException(status_code=404, detail="Planta no encontrada")
 
     if attribute == "luces":
@@ -122,7 +137,7 @@ async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(ge
 
     db.commit()
     db.refresh(planta)
-
+    save_log(db, "admin", f"Cambio de estado de {attribute}", f"Estado de {attribute} cambiado en la planta {planta_id}")
     return {"message": f"Estado de {attribute} cambiado exitosamente.", "planta": planta}
 
 @app.post("/login", response_model=LoginResponse, summary="Autenticación de usuario", description="Autentica a un usuario con el nombre de usuario y contraseña proporcionados.", tags=["usuarios"])
@@ -143,6 +158,28 @@ async def login(username: str, password: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
 
     if not user or not password == user.password:
+        save_log(db, username, "Login fallido", "Credenciales inválidas")
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
 
-    return {"message": "Login exitoso", "admin": user.admin}
+    save_log(db, username, "Login exitoso", "Usuario autenticado")
+    return {"message": "Login exitoso", "admin": user.admin, "username":user.username}
+
+
+def save_log(db: Session, username: str, title: str, description: str):
+    log = Log(username=username, title=title, description=description)
+    db.add(log)
+    db.commit()
+    db.refresh(log)
+
+@app.get("/logs", response_model=list[Log], summary="Devuelve la lista de logs", description="Obtiene la lista de todos los logs.", tags=["logs"])
+async def get_logs(db: Session = Depends(get_db)):
+    """
+    Obtiene la lista de todos los logs en la base de datos.
+    
+    - **db**: Sesión de base de datos.
+    
+    Returns:
+    - **List[Log]**: Lista de objetos Log.
+    """
+    logs = db.query(Log).all()
+    return logs

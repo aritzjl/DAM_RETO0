@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict
 import datetime
+import openpyxl
 
 # Crear el motor de la base de datos SQLite
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
@@ -193,3 +194,37 @@ async def get_logs(db: Session = Depends(get_db)):
     """
     logs = db.query(Log).all()
     return logs
+
+@app.get("/logs/export", response_model=Dict[str, str], summary="Exportar logs a Excel", description="Exporta los logs a un archivo Excel.", tags=["logs"])
+async def export_logs(db: Session = Depends(get_db)):
+    """
+    Exporta los logs a un archivo Excel.
+    
+    - **db**: Sesión de base de datos.
+    
+    Returns:
+    - **Dict[str, str]**: Mensaje de éxito.
+    """
+    logs = db.query(Log).all()
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.append(["ID", "Username", "Title", "Description", "Date"])
+    for log in logs:
+        ws.append([log.id, log.username, log.title, log.description, log.date])
+    wb.save("logs.xlsx")
+    
+    # Devuelve el archivo excel a descargar
+    return {"message": "Logs exportados a Excel"}
+
+"""@app.get("/plantas-init") 
+async def plantas_init(db: Session = Depends(get_db)): 
+    # Crear tres plantas con todos los atributos booleanos en False 
+    planta1 = Planta(luces=False, routers=False, calefaccion=False) 
+    planta2 = Planta(luces=False, routers=False, calefaccion=False) 
+ 
+    # Añadir las plantas a la base de datos 
+    db.add_all([planta1, planta2]) 
+    db.commit() 
+ 
+    # Retornar un mensaje de éxito 
+    return {"message": "Tres plantas creadas con todos los valores en False."}"""

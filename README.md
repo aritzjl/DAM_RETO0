@@ -58,8 +58,6 @@ Para ejecutar la aplicación, utiliza el siguiente comando:
 uvicorn main:app --reload
 ```
 
-```
-
 Alternativamente, puedes usar los scripts proporcionados:
 
 - En Windows:

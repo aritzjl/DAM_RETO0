@@ -1,0 +1,38 @@
+INFO:     Will watch for changes in these directories: ['/home/aritz/DAM_RETO0']
+INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
+INFO:     Started reloader process [5807] using StatReload
+INFO:     Started server process [5810]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /favicon.ico HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /favicon.ico HTTP/1.0" 404 Not Found
+INFO:     205.169.39.42:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     205.169.39.137:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     35.239.103.25:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     179.43.169.181:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     107.172.179.166:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     107.172.179.166:0 - "GET /favicon.ico HTTP/1.0" 404 Not Found
+INFO:     104.253.214.229:0 - "GET / HTTP/1.0" 404 Not Found
+INFO:     104.253.214.229:0 - "GET /favicon.ico HTTP/1.0" 404 Not Found
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     44.194.139.157:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK

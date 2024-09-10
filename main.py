@@ -77,6 +77,16 @@ class LoginResponse(BaseModel):
     username: str
     admin: bool
     
+    
+class LogResponse(BaseModel):
+    id: int
+    username: str
+    title: str
+    description: str
+    date: str
+
+    class Config:
+        orm_mode = True
 
 # Función para inicializar usuarios predeterminados
 def init_db():
@@ -171,7 +181,7 @@ def save_log(db: Session, username: str, title: str, description: str):
     db.commit()
     db.refresh(log)
 
-@app.get("/logs", response_model=list[Log], summary="Devuelve la lista de logs", description="Obtiene la lista de todos los logs.", tags=["logs"])
+@app.get("/logs", response_model=List[LogResponse], summary="Devuelve la lista de logs", description="Obtiene la lista de todos los logs.", tags=["logs"])
 async def get_logs(db: Session = Depends(get_db)):
     """
     Obtiene la lista de todos los logs en la base de datos.
@@ -179,7 +189,7 @@ async def get_logs(db: Session = Depends(get_db)):
     - **db**: Sesión de base de datos.
     
     Returns:
-    - **List[Log]**: Lista de objetos Log.
+    - **List[LogResponse]**: Lista de objetos Log.
     """
     logs = db.query(Log).all()
     return logs

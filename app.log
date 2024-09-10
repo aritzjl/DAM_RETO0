@@ -1,11 +1,14 @@
 INFO:     Will watch for changes in these directories: ['/home/aritz/DAM_RETO0']
 INFO:     Uvicorn running on http://127.0.0.1:8016 (Press CTRL+C to quit)
-INFO:     Started reloader process [5659] using StatReload
+INFO:     Started reloader process [8220] using StatReload
 /usr/local/lib/python3.10/dist-packages/pydantic/_internal/_config.py:341: UserWarning: Valid config keys have changed in V2:
 * 'orm_mode' has been renamed to 'from_attributes'
   warnings.warn(message, UserWarning)
-INFO:     Started server process [5662]
+INFO:     Started server process [8223]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
-INFO:     194.30.71.221:0 - "GET /docs HTTP/1.0" 200 OK
-INFO:     194.30.71.221:0 - "GET /openapi.json HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "PUT /plantas/2/switch?attribute=calefaccion&username=usuario HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "PUT /plantas/2/switch?attribute=calefaccion&username=usuario HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "PUT /plantas/2/switch?attribute=calefaccion&username=usuario HTTP/1.0" 200 OK
+INFO:     194.30.71.221:0 - "GET /logs/export HTTP/1.0" 200 OK
+INFO:     37.29.230.172:0 - "GET /planos HTTP/1.0" 200 OK

@@ -4,7 +4,10 @@ from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
 from typing import List, Optional, Dict
+from fastapi.responses import StreamingResponse
 import datetime
+import io
+from fastapi.middleware.cors import CORSMiddleware
 import openpyxl
 
 # Crear el motor de la base de datos SQLite
@@ -58,7 +61,14 @@ def get_db():
         db.close()
 
 app = FastAPI(title="API Reto 0", description="API para gestionar el estado de los dispositivos de las plantas y el sistema de login.", version="1.0")
-
+# Configura el middleware CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todas las URLs de origen
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos los métodos HTTP
+    allow_headers=["*"],  # Permite todos los headers
+)
 # Modelos de respuesta
 class PlantaResponse(BaseModel):
     id: int
@@ -117,7 +127,7 @@ async def get_planos(db: Session = Depends(get_db)):
     return plantas
 
 @app.put("/plantas/{planta_id}/switch", response_model=SwitchResponse, summary="Cambia el estado de un dispositivo", description="Cambia el estado de un dispositivo específico (luces, routers, calefacción) en una planta dada.", tags=["planos"])
-async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(get_db)):
+async def switch_planta(planta_id: int, attribute: str, username:str, db: Session = Depends(get_db)):
     """
     Cambia el estado de un dispositivo específico (luces, routers, calefacción) en una planta dada.
     
@@ -134,7 +144,7 @@ async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(ge
     planta = db.query(Planta).filter(Planta.id == planta_id).first()
     
     if not planta:
-        save_log(db, "admin", "Cambio de estado fallido", "Planta no encontrada")
+        save_log(db, username, "Cambio de estado fallido", "Planta no encontrada")
         raise HTTPException(status_code=404, detail="Planta no encontrada")
 
     if attribute == "luces":
@@ -148,7 +158,8 @@ async def switch_planta(planta_id: int, attribute: str, db: Session = Depends(ge
 
     db.commit()
     db.refresh(planta)
-    save_log(db, "admin", f"Cambio de estado de {attribute}", f"Estado de {attribute} cambiado en la planta {planta_id}")
+    estado = "encendido" if getattr(planta, attribute) else "apagado"
+    save_log(db, username, f"Cambio de estado de {attribute}", f"Estado de {attribute} a {estado} cambiado en la planta {planta_id}")
     return {"message": f"Estado de {attribute} cambiado exitosamente.", "planta": planta}
 
 @app.post("/login", response_model=LoginResponse, summary="Autenticación de usuario", description="Autentica a un usuario con el nombre de usuario y contraseña proporcionados.", tags=["usuarios"])
@@ -195,7 +206,7 @@ async def get_logs(db: Session = Depends(get_db)):
     logs = db.query(Log).all()
     return logs
 
-@app.get("/logs/export", response_model=Dict[str, str], summary="Exportar logs a Excel", description="Exporta los logs a un archivo Excel.", tags=["logs"])
+@app.get("/logs/export", summary="Exportar logs a Excel", description="Exporta los logs a un archivo Excel.", tags=["logs"])
 async def export_logs(db: Session = Depends(get_db)):
     """
     Exporta los logs a un archivo Excel.
@@ -203,7 +214,7 @@ async def export_logs(db: Session = Depends(get_db)):
     - **db**: Sesión de base de datos.
     
     Returns:
-    - **Dict[str, str]**: Mensaje de éxito.
+    - **StreamingResponse**: Archivo Excel para descarga.
     """
     logs = db.query(Log).all()
     wb = openpyxl.Workbook()
@@ -211,10 +222,13 @@ async def export_logs(db: Session = Depends(get_db)):
     ws.append(["ID", "Username", "Title", "Description", "Date"])
     for log in logs:
         ws.append([log.id, log.username, log.title, log.description, log.date])
-    wb.save("logs.xlsx")
     
-    # Devuelve el archivo excel a descargar
-    return {"message": "Logs exportados a Excel"}
+    # Guarda el archivo en un buffer en memoria
+    file_stream = io.BytesIO()
+    wb.save(file_stream)
+    file_stream.seek(0)
+    
+    return StreamingResponse(file_stream, media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", headers={"Content-Disposition": "attachment; filename=logs.xlsx"})
 
 """@app.get("/plantas-init") 
 async def plantas_init(db: Session = Depends(get_db)): 

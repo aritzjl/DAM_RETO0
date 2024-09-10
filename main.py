@@ -44,7 +44,7 @@ def get_db():
     finally:
         db.close()
 
-app = FastAPI(title="Plantas API", description="API para gestionar el estado de plantas y usuarios.", version="1.0")
+app = FastAPI(title="API Reto 0", description="API para gestionar el estado de los dispositivos de las plantas y el sistema de login.", version="1.0")
 
 # Modelos de respuesta
 class PlantaResponse(BaseModel):

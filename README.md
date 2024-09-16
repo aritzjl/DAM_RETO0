@@ -1,29 +1,36 @@
-**# Reto 0 API**
+# Reto 0 API
 
-**## Tabla de Contenidos**
+## Tabla de Contenidos
 
-- [Introducción](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Características](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Instalación](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Uso](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Puntos de API](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Modelos de Base de Datos](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Configuración](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Desarrollo](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
-- [Despliegue](https://www.notion.so/Backend-997afc02fea84098843a3f479b57e961?pvs=21)
+- [Reto 0 API](#reto-0-api)
+  - [Tabla de Contenidos](#tabla-de-contenidos)
+  - [Introducción](#introducción)
+  - [Características](#características)
+  - [Instalación](#instalación)
+  - [Uso](#uso)
+  - [Puntos de API](#puntos-de-api)
+    - [Puntos de Usuario](#puntos-de-usuario)
+    - [Puntos de Plantas](#puntos-de-plantas)
+  - [Modelos de Base de Datos](#modelos-de-base-de-datos)
+    - [Modelo de Usuario](#modelo-de-usuario)
+    - [Modelo de Planta](#modelo-de-planta)
+    - [Modelo PlantaResponse](#modelo-plantaresponse)
+  - [Configuración](#configuración)
+  - [Desarrollo](#desarrollo)
+  - [Despliegue](#despliegue)
 
-**## Introducción**
+## Introducción
 
 Este proyecto es una aplicación web construida con FastAPI y SQLAlchemy. Proporciona una API RESTful para gestionar usuarios y dispositivos de plantas.
 
-**## Características**
+## Características
 
 - Autenticación y gestión de usuarios
 - Gestión de dispositivos de plantas
 - Actualizaciones en tiempo real con Uvicorn
 - Registro detallado
 
-**## Instalación**
+## Instalación
 
 Para instalar el proyecto, sigue estos pasos:
 
@@ -49,7 +56,7 @@ Para instalar el proyecto, sigue estos pasos:
     ```
     
 
-**## Uso**
+## Uso
 
 Para ejecutar la aplicación, utiliza el siguiente comando:
 
@@ -69,7 +76,7 @@ Alternativamente, puedes usar los scripts proporcionados:
     `./restart.sh`
     
 
-**## Puntos de API**
+## Puntos de API
 Puedes encontrar la documentaicón detallada de los endpoints en https://retocero.api.tenbeltz.com/docs
 ### Puntos de Usuario
 
@@ -87,7 +94,7 @@ Puedes encontrar la documentaicón detallada de los endpoints en https://retocer
 - `PUT /plantas/{id}`: Actualiza una planta por ID.
 - `DELETE /plantas/{id}`: Elimina una planta por ID.
 
-**## Modelos de Base de Datos**
+## Modelos de Base de Datos
 
 ### Modelo de Usuario
 
@@ -130,11 +137,11 @@ class PlantaResponse(BaseModel):
         orm_mode = True
 ```
 
-**## Configuración**
+## Configuración
 
 La aplicación utiliza SQLAlchemy para ORM y Pydantic para validación de datos. Asegúrate de tener configurada la URL correcta de la base de datos en tus variables de entorno.
 
-**## Desarrollo**
+## Desarrollo
 
 Para configurar el entorno de desarrollo, sigue los pasos de instalación y luego ejecuta:
 
@@ -142,6 +149,6 @@ Para configurar el entorno de desarrollo, sigue los pasos de instalación y lueg
 uvicorn main:app --reload
 ```
 
-**## Despliegue**
+## Despliegue
 
 Para el despliegue, asegúrate de tener un servidor listo para producción. Puedes usar el script `restart.sh` proporcionado para sistemas basados en Unix.
